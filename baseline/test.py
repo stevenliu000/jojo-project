@@ -50,7 +50,7 @@ else:
 G.to(device)
 G.eval()
 
-'''
+
 src_transform = transforms.Compose([
         transforms.Resize((args.input_size, args.input_size)),
         transforms.ToTensor(),
@@ -63,12 +63,13 @@ with torch.no_grad():
     G.eval()
     for n, (x, _) in enumerate(image_src):
         x = x.to(device)
+        print(x.shape)
         G_recon = G(x)
         result = torch.cat((x[0], G_recon[0]), 2)
         path = os.path.join(args.output_image_dir, str(n + 1) + '.png')
         plt.imsave(path, (result.cpu().numpy().transpose(1, 2, 0) + 1) / 2)
-'''
 
+'''
 valid_ext = ['.jpg', '.png']
 
 for files in os.listdir(args.image_dir):
@@ -109,5 +110,5 @@ for files in os.listdir(args.image_dir):
 	vutils.save_image(output_image, os.path.join(args.output_image_dir, files[:-4] + '.jpg'))
 
 print('Done!')
-
+'''
 
