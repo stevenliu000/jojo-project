@@ -3,6 +3,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
+from torch.autograd import Variable
+import torchvision.transforms as transforms
+from PIL import Image
+import torchvision.utils as vutils
+import numpy as np
 from torchvision import transforms
 
 parser = argparse.ArgumentParser()
@@ -35,14 +40,17 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 if torch.backends.cudnn.enabled:
     torch.backends.cudnn.benchmark = True
 
-G = networks.generator(args.in_ngc, args.out_ngc, args.ngf, args.nb)
+G = networks.Transformer()
 if torch.cuda.is_available():
     G.load_state_dict(torch.load(args.pre_trained_model))
 else:
     # cpu mode
     G.load_state_dict(torch.load(args.pre_trained_model, map_location=lambda storage, loc: storage))
-G.to(device)
 
+G.to(device)
+G.eval()
+
+'''
 src_transform = transforms.Compose([
         transforms.Resize((args.input_size, args.input_size)),
         transforms.ToTensor(),
@@ -59,5 +67,47 @@ with torch.no_grad():
         result = torch.cat((x[0], G_recon[0]), 2)
         path = os.path.join(args.output_image_dir, str(n + 1) + '.png')
         plt.imsave(path, (result.cpu().numpy().transpose(1, 2, 0) + 1) / 2)
+'''
+
+valid_ext = ['.jpg', '.png']
+
+for files in os.listdir(args.image_dir):
+	ext = os.path.splitext(files)[1]
+	if ext not in valid_ext:
+		continue
+	# load image
+	input_image = Image.open(os.path.join(args.image_dir, files)).convert("RGB")
+	# resize image, keep aspect ratio
+	h = input_image.size[0]
+	w = input_image.size[1]
+	ratio = h *1.0 / w
+	if ratio > 1:
+		h = args.input_size
+		w = int(h*1.0/ratio)
+	else:
+		w = args.input_size
+		h = int(w * ratio)
+	input_image = input_image.resize((h, w), Image.BICUBIC)
+	input_image = np.asarray(input_image)
+	# RGB -> BGR
+	input_image = input_image[:, :, [2, 1, 0]]
+	input_image = transforms.ToTensor()(input_image).unsqueeze(0)
+	# preprocess, (-1, 1)
+	input_image = -1 + 2 * input_image 
+	if torch.cuda.is_available():
+		input_image = Variable(input_image, volatile=True).cuda()
+	else:
+		input_image = Variable(input_image, volatile=True).float()
+	# forward
+	output_image = G(input_image)
+	output_image = output_image[0]
+	# BGR -> RGB
+	output_image = output_image[[2, 1, 0], :, :]
+	# deprocess, (0, 1)
+	output_image = output_image.data.cpu().float() * 0.5 + 0.5
+	# save
+	vutils.save_image(output_image, os.path.join(args.output_image_dir, files[:-4] + '.jpg'))
+
+print('Done!')
 
 

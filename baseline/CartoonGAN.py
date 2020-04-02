@@ -68,7 +68,8 @@ train_loader_tgt = utils.data_load(os.path.join('data', args.tgt_data), 'pair', 
 test_loader_src = utils.data_load(os.path.join('data', args.src_data), 'test', src_transform, 1, shuffle=True, drop_last=True)
 
 # network
-G = networks.generator(args.in_ngc, args.out_ngc, args.ngf, args.nb)
+# G = networks.generator(args.in_ngc, args.out_ngc, args.ngf, args.nb)
+G = networks.Transformer()
 if args.latest_generator_model != '':
     if torch.cuda.is_available():
         G.load_state_dict(torch.load(args.latest_generator_model))
