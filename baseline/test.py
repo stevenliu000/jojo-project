@@ -9,6 +9,7 @@ from PIL import Image
 import torchvision.utils as vutils
 import numpy as np
 from torchvision import transforms
+from utils import ToRGB, RatioedResize, Zero, RGBToBGR
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', required=False, default='project_name',  help='')
@@ -52,9 +53,11 @@ G.eval()
 
 
 src_transform = transforms.Compose([
-        transforms.Resize((args.input_size, args.input_size)),
+        ToRGB(),
+        RatioedResize(args.input_size),
         transforms.ToTensor(),
-        transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+        RGBToBGR(),
+        Zero(),
 ])
 # utils.data_load(os.path.join('data', args.src_data), 'test', src_transform, 1, shuffle=True, drop_last=True)
 image_src = utils.data_load(os.path.join(args.image_dir), 'test', src_transform, 1, shuffle=True, drop_last=True)
@@ -63,11 +66,12 @@ with torch.no_grad():
     G.eval()
     for n, (x, _) in enumerate(image_src):
         x = x.to(device)
-        print(x.shape)
         G_recon = G(x)
-        result = torch.cat((x[0], G_recon[0]), 2)
+        result = G_recon[0]
         path = os.path.join(args.output_image_dir, str(n + 1) + '.png')
-        plt.imsave(path, (result.cpu().numpy().transpose(1, 2, 0) + 1) / 2)
+        result = result[[2, 1, 0], :, :]
+        result = result.data.cpu().float() * 0.5 + 0.5
+        vutils.save_image(result, path)
 
 '''
 valid_ext = ['.jpg', '.png']
