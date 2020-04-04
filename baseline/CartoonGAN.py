@@ -124,7 +124,7 @@ pre_train_hist['total_time'] = []
 if args.latest_generator_model == '':
     print('Pre-training start!')
     start_time = time.time()
-    for epoch in range(args.pre_train_epoch):
+    for epoch in tqdm(range(args.pre_train_epoch)):
         epoch_start_time = time.time()
         Recon_losses = []
         for x, _ in train_loader_src:
@@ -155,7 +155,7 @@ if args.latest_generator_model == '':
 
     with torch.no_grad():
         G.eval()
-        for n, (x, _) in enumerate(train_loader_src):
+        for n, (x, _) in tqdm(enumerate(train_loader_src), total=len(train_loader_src)):
             x = x.to(device)
             G_recon = G(x)
             result = torch.cat((x[0], G_recon[0]), 2)
@@ -166,7 +166,7 @@ if args.latest_generator_model == '':
             if n == 4:
                 break
 
-        for n, (x, _) in enumerate(test_loader_src):
+        for n, (x, _) in tqdm(enumerate(test_loader_src), total=len(test_loader_src)):
             x = x.to(device)
             G_recon = G(x)
             result = torch.cat((x[0], G_recon[0]), 2)
@@ -190,7 +190,7 @@ print('training start!')
 start_time = time.time()
 real = torch.ones(args.batch_size, 1, args.input_size // 4, args.input_size // 4).to(device)
 fake = torch.zeros(args.batch_size, 1, args.input_size // 4, args.input_size // 4).to(device)
-for epoch in range(args.train_epoch):
+for epoch in tqdm(range(args.train_epoch)):
     epoch_start_time = time.time()
     G.train()
     G_scheduler.step()
@@ -253,7 +253,7 @@ for epoch in range(args.train_epoch):
     if epoch % 2 == 1 or epoch == args.train_epoch - 1:
         with torch.no_grad():
             G.eval()
-            for n, (x, _) in enumerate(train_loader_src):
+            for n, (x, _) in tqdm(enumerate(train_loader_src), total=len(train_loader_src)):
                 x = x.to(device)
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)
@@ -264,7 +264,7 @@ for epoch in range(args.train_epoch):
                 if n == 4:
                     break
 
-            for n, (x, _) in enumerate(test_loader_src):
+            for n, (x, _) in tqdm(enumerate(test_loader_src), total=len(train_loader_src)):
                 x = x.to(device)
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)
