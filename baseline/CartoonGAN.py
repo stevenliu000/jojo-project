@@ -5,6 +5,9 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from torchvision import transforms
 from edge_promoting import edge_promoting
+import torchvision.utils as vutils
+from PIL import Image
+import numpy as np
 from utils import ToRGB, RatioedResize, Zero, RGBToBGR
 
 parser = argparse.ArgumentParser()
@@ -130,9 +133,9 @@ if args.latest_generator_model == '':
             # train generator G
             G_optimizer.zero_grad()
 
-            x_feature = VGG((x + 1) / 2)
+            x_feature = VGG(x)
             G_ = G(x)
-            G_feature = VGG((G_ + 1) / 2)
+            G_feature = VGG(G_)
 
             Recon_loss = 10 * L1_loss(G_feature, x_feature.detach())
             Recon_losses.append(Recon_loss.item())
@@ -157,7 +160,9 @@ if args.latest_generator_model == '':
             G_recon = G(x)
             result = torch.cat((x[0], G_recon[0]), 2)
             path = os.path.join(args.name + '_results', 'Reconstruction', args.name + '_train_recon_' + str(n + 1) + '.png')
-            plt.imsave(path, (result.cpu().numpy().transpose(1, 2, 0) + 1) / 2)
+            result = result[[2, 1, 0], :, :]
+            result = result.data.cpu().float() * 0.5 + 0.5
+            vutils.save_image(result, path)
             if n == 4:
                 break
 
@@ -166,7 +171,9 @@ if args.latest_generator_model == '':
             G_recon = G(x)
             result = torch.cat((x[0], G_recon[0]), 2)
             path = os.path.join(args.name + '_results', 'Reconstruction', args.name + '_test_recon_' + str(n + 1) + '.png')
-            plt.imsave(path, (result.cpu().numpy().transpose(1, 2, 0) + 1) / 2)
+            result = result[[2, 1, 0], :, :]
+            result = result.data.cpu().float() * 0.5 + 0.5
+            vutils.save_image(result, path)
             if n == 4:
                 break
 else:
@@ -223,8 +230,8 @@ for epoch in range(args.train_epoch):
         D_fake = D(G_)
         D_fake_loss = BCE_loss(D_fake, real)
 
-        x_feature = VGG((x + 1) / 2)
-        G_feature = VGG((G_ + 1) / 2)
+        x_feature = VGG(x)
+        G_feature = VGG(G_)
         Con_loss = args.con_lambda * L1_loss(G_feature, x_feature.detach())
 
         Gen_loss = D_fake_loss + Con_loss
@@ -251,7 +258,9 @@ for epoch in range(args.train_epoch):
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)
                 path = os.path.join(args.name + '_results', 'Transfer', str(epoch+1) + '_epoch_' + args.name + '_train_' + str(n + 1) + '.png')
-                plt.imsave(path, (result.cpu().numpy().transpose(1, 2, 0) + 1) / 2)
+                result = result[[2, 1, 0], :, :]
+                result = result.data.cpu().float() * 0.5 + 0.5
+                vutils.save_image(result, path)
                 if n == 4:
                     break
 
@@ -260,7 +269,9 @@ for epoch in range(args.train_epoch):
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)
                 path = os.path.join(args.name + '_results', 'Transfer', str(epoch+1) + '_epoch_' + args.name + '_test_' + str(n + 1) + '.png')
-                plt.imsave(path, (result.cpu().numpy().transpose(1, 2, 0) + 1) / 2)
+                result = result[[2, 1, 0], :, :]
+                result = result.data.cpu().float() * 0.5 + 0.5
+                vutils.save_image(result, path)
                 if n == 4:
                     break
 

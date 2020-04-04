@@ -69,7 +69,9 @@ with torch.no_grad():
         G_recon = G(x)
         result = G_recon[0]
         path = os.path.join(args.output_image_dir, str(n + 1) + '.png')
+				# BGR -> RGB
         result = result[[2, 1, 0], :, :]
+				# deprocess, (0, 1)
         result = result.data.cpu().float() * 0.5 + 0.5
         vutils.save_image(result, path)
 
