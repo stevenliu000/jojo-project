@@ -7,6 +7,7 @@ from torchvision import transforms
 from edge_promoting import edge_promoting
 import torchvision.utils as vutils
 from PIL import Image
+from tqdm import tqdm
 import numpy as np
 from utils import ToRGB, RatioedResize, Zero, RGBToBGR
 
