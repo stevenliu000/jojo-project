@@ -68,7 +68,7 @@ src_transform = transforms.Compose([
 ])
 tgt_transform = transforms.Compose([
         ToRGB(),
-        RatioedResize(args.input_size),
+        transforms.Resize(args.input_size),
         transforms.ToTensor(),
         RGBToBGR(),
         Zero(),
@@ -120,7 +120,7 @@ pre_train_hist = {}
 pre_train_hist['Recon_loss'] = []
 pre_train_hist['per_epoch_time'] = []
 pre_train_hist['total_time'] = []
-
+'''
 """ Pre-train reconstruction """
 if args.latest_generator_model == '':
     print('Pre-training start!')
@@ -179,7 +179,7 @@ if args.latest_generator_model == '':
                 break
 else:
     print('Load the latest generator model, no need to pre-train')
-
+'''
 
 train_hist = {}
 train_hist['Disc_loss'] = []
@@ -208,6 +208,11 @@ for epoch in tqdm(range(args.train_epoch)):
         D_optimizer.zero_grad()
 
         D_real = D(y)
+        print(e.shape)
+        print(y.shape)
+        print(x.shape)
+        print(D_real.shape)
+        print(real.shape)
         D_real_loss = BCE_loss(D_real, real)
 
         G_ = G(x)
