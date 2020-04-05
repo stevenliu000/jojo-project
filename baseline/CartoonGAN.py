@@ -208,11 +208,6 @@ for epoch in tqdm(range(args.train_epoch)):
         D_optimizer.zero_grad()
 
         D_real = D(y)
-        print(e.shape)
-        print(y.shape)
-        print(x.shape)
-        print(D_real.shape)
-        print(real.shape)
         D_real_loss = BCE_loss(D_real, real)
 
         G_ = G(x)
