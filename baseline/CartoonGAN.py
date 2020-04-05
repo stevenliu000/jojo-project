@@ -120,7 +120,7 @@ pre_train_hist = {}
 pre_train_hist['Recon_loss'] = []
 pre_train_hist['per_epoch_time'] = []
 pre_train_hist['total_time'] = []
-'''
+
 """ Pre-train reconstruction """
 if args.latest_generator_model == '':
     print('Pre-training start!')
@@ -179,7 +179,7 @@ if args.latest_generator_model == '':
                 break
 else:
     print('Load the latest generator model, no need to pre-train')
-'''
+
 
 train_hist = {}
 train_hist['Disc_loss'] = []
