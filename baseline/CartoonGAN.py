@@ -35,6 +35,7 @@ parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for Adam opt
 parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for Adam optimizer')
 parser.add_argument('--latest_generator_model', required=False, default='', help='the latest trained model path')
 parser.add_argument('--latest_discriminator_model', required=False, default='', help='the latest trained model path')
+parser.add_argument('--save_period', type=int, required=False, default=2, help='of how many epochs it saves model')
 args = parser.parse_args()
 
 print('------------ Options -------------')
@@ -252,7 +253,7 @@ for epoch in range(args.train_epoch):
     '[%d/%d] - time: %.2f, Disc loss: %.3f, Gen loss: %.3f, Con loss: %.3f' % ((epoch + 1), args.train_epoch, per_epoch_time, torch.mean(torch.FloatTensor(Disc_losses)),
         torch.mean(torch.FloatTensor(Gen_losses)), torch.mean(torch.FloatTensor(Con_losses))))
 
-    if epoch % 2 == 1 or epoch == args.train_epoch - 1:
+    if epoch > 0 and (epoch % args.save_period == 0 or epoch == args.train_epoch - 1):
         with torch.no_grad():
             G.eval()
             for n, (x, _) in enumerate(train_loader_src):
