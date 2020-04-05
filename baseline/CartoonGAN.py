@@ -125,7 +125,7 @@ pre_train_hist['total_time'] = []
 if args.latest_generator_model == '':
     print('Pre-training start!')
     start_time = time.time()
-    for epoch in tqdm(range(args.pre_train_epoch)):
+    for epoch in range(args.pre_train_epoch):
         epoch_start_time = time.time()
         Recon_losses = []
         for x, _ in train_loader_src:
