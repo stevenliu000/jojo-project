@@ -255,7 +255,7 @@ for epoch in range(args.train_epoch):
     if epoch % 2 == 1 or epoch == args.train_epoch - 1:
         with torch.no_grad():
             G.eval()
-            for n, (x, _) in enumerate(train_loader_src)):
+            for n, (x, _) in enumerate(train_loader_src):
                 x = x.to(device)
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)
@@ -266,7 +266,7 @@ for epoch in range(args.train_epoch):
                 if n == 4:
                     break
 
-            for n, (x, _) in enumerate(test_loader_src)):
+            for n, (x, _) in enumerate(test_loader_src):
                 x = x.to(device)
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)
