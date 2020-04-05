@@ -8,6 +8,7 @@ from edge_promoting import edge_promoting
 import torchvision.utils as vutils
 from PIL import Image
 from tqdm import tqdm
+from tqdm.contrib import tzip
 import numpy as np
 from utils import ToRGB, RatioedResize, Zero, RGBToBGR
 
@@ -191,7 +192,7 @@ print('training start!')
 start_time = time.time()
 real = torch.ones(args.batch_size, 1, args.input_size // 4, args.input_size // 4).to(device)
 fake = torch.zeros(args.batch_size, 1, args.input_size // 4, args.input_size // 4).to(device)
-for epoch in tqdm(range(args.train_epoch)):
+for epoch in range(args.train_epoch):
     epoch_start_time = time.time()
     G.train()
     G_scheduler.step()
@@ -199,7 +200,7 @@ for epoch in tqdm(range(args.train_epoch)):
     Disc_losses = []
     Gen_losses = []
     Con_losses = []
-    for (x, _), (y, _) in zip(train_loader_src, train_loader_tgt):
+    for (x, _), (y, _) in tzip(train_loader_src, train_loader_tgt):
         e = y[:, :, :, args.input_size:]
         y = y[:, :, :, :args.input_size]
         x, y, e = x.to(device), y.to(device), e.to(device)
