@@ -2,31 +2,34 @@ from PIL import Image
 from concurrent.futures import ProcessPoolExecutor
 import edge_promoting_thread
 import os
+from pathlib import Path
+
+cwd = os.getcwd()
 
 print('start move src data')
 # move src data
-src_path = "./data/images"
+src_path = os.path.join(cwd, "data/images")
 src_files = [f for f in os.listdir(src_path) if os.path.isfile(os.path.join(src_path, f))]
 src_files.sort()
 train_files = src_files[:5400]
 
-train_path = './data/src/train'
+train_path = os.path.join(cwd, './data/src/train')
 if not os.path.isdir(train_path):
     os.makedirs(train_path)
     
 for i in train_files:
-    Path(os.path.join(src_path, i)).rename(os.path.join(train_files, i))
+    Path(os.path.join(src_path, i)).rename(os.path.join(train_path, i))
     
 testfiles = src_files[5400:6150]
-test_path = './data/src/test'
+test_path = os.path.join(cwd, 'data/src/test')
 if not os.path.isdir(test_path):
     os.makedirs(test_path)
 for i in testfiles:
-    Path(os.path.join(path, i)).rename(os.path.join(test_path, i))
+    Path(os.path.join(src_path, i)).rename(os.path.join(test_path, i))
 
 print('start move tgt data')
 # move tgt data
-jojo_path = './data/jojo/05'
+jojo_path = os.path.join(cwd, 'data/jojo/05')
 jojo_filenames = []
 for s in os.listdir(jojo_path):
     if os.path.isdir(os.path.join(jojo_path, s)):
@@ -38,10 +41,9 @@ for s in os.listdir(jojo_path):
         
 jojo_filenames.sort()
 
-tgt_path = './data/tgt/train'
-for i in train_files:
-    Path(os.path.join(src_path, i)).rename(os.path.join(train_files, i))
-    
+tgt_path = os.path.join(cwd, 'data/tgt/train')
+if not os.path.isdir(tgt_path):
+    os.makedirs(tgt_path)
 j = 0
 for i in jojo_filenames[:5000]:
     Path(i).rename(os.path.join(tgt_path, str(j)+'.jpg'))
