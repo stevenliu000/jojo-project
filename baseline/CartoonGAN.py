@@ -35,6 +35,7 @@ parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for Adam opt
 parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for Adam optimizer')
 parser.add_argument('--latest_generator_model', required=False, default='', help='the latest trained model path')
 parser.add_argument('--latest_discriminator_model', required=False, default='', help='the latest trained model path')
+parser.add_argument('--G_pre_trained_weight', required=False, default='', help='pre_trained_weight for G')
 parser.add_argument('--save_period', type=int, required=False, default=2, help='of how many epochs it saves model')
 args = parser.parse_args()
 
@@ -68,6 +69,7 @@ src_transform = transforms.Compose([
         RGBToBGR(),
         Zero(),
 ])
+
 tgt_transform = transforms.Compose([
         ToRGB(),
         transforms.Resize(args.input_size),
@@ -75,9 +77,20 @@ tgt_transform = transforms.Compose([
         RGBToBGR(),
         Zero(),
 ])
+
+src_transform_test = transforms.Compose([
+        ToRGB(),
+        transforms.Resize((500, 500)),
+        transforms.ToTensor(),
+        RGBToBGR(),
+        Zero(),
+])
+
 train_loader_src = utils.data_load(os.path.join('data', args.src_data), 'train', src_transform, args.batch_size, shuffle=True, drop_last=True)
 train_loader_tgt = utils.data_load(os.path.join('data', args.tgt_data), 'pair', tgt_transform, args.batch_size, shuffle=True, drop_last=True)
-test_loader_src = utils.data_load(os.path.join('data', args.src_data), 'test', src_transform, 1, shuffle=True, drop_last=True)
+
+test_loader_src_large = utils.data_load(os.path.join('data', args.src_data), 'test', src_transform_test, 1, shuffle=True, drop_last=True)
+train_loader_src_large = utils.data_load(os.path.join('data', args.src_data), 'train', src_transform_test, 1, shuffle=True, drop_last=True)
 
 # network
 # G = networks.generator(args.in_ngc, args.out_ngc, args.ngf, args.nb)
@@ -88,6 +101,14 @@ if args.latest_generator_model != '':
     else:
         # cpu mode
         G.load_state_dict(torch.load(args.latest_generator_model, map_location=lambda storage, loc: storage))
+                    
+if args.G_pre_trained_weight != '':
+    print("loaded G weight!")
+    if torch.cuda.is_available():
+        G.load_state_dict(torch.load(args.G_pre_trained_weight))
+    else:
+        # cpu mode
+        G.load_state_dict(torch.load(args.G_pre_trained_weight, map_location=lambda storage, loc: storage))                    
 
 D = networks.discriminator(args.in_ndc, args.out_ndc, args.ndf)
 if args.latest_discriminator_model != '':
@@ -123,6 +144,8 @@ pre_train_hist['Recon_loss'] = []
 pre_train_hist['per_epoch_time'] = []
 pre_train_hist['total_time'] = []
 
+
+'''
 """ Pre-train reconstruction """
 if args.latest_generator_model == '':
     print('Pre-training start!')
@@ -130,7 +153,7 @@ if args.latest_generator_model == '':
     for epoch in range(args.pre_train_epoch):
         epoch_start_time = time.time()
         Recon_losses = []
-        for x, _ in train_loader_src:
+        for __, (x, _) in tqdm(enumerate(train_loader_src), total=len(train_loader_src)):
             x = x.to(device)
 
             # train generator G
@@ -181,6 +204,7 @@ if args.latest_generator_model == '':
                 break
 else:
     print('Load the latest generator model, no need to pre-train')
+'''
 
 
 train_hist = {}
@@ -256,7 +280,7 @@ for epoch in range(args.train_epoch):
     if epoch > 0 and (epoch % args.save_period == 0 or epoch == args.train_epoch - 1):
         with torch.no_grad():
             G.eval()
-            for n, (x, _) in enumerate(train_loader_src):
+            for n, (x, _) in enumerate(train_loader_src_large):
                 x = x.to(device)
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)
@@ -267,7 +291,7 @@ for epoch in range(args.train_epoch):
                 if n == 4:
                     break
 
-            for n, (x, _) in enumerate(test_loader_src):
+            for n, (x, _) in enumerate(test_loader_src_large):
                 x = x.to(device)
                 G_recon = G(x)
                 result = torch.cat((x[0], G_recon[0]), 2)

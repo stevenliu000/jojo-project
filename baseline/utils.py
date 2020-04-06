@@ -6,6 +6,7 @@ from torchvision import datasets
 # from scipy.misc import imresize
 from PIL import Image 
 from torch.autograd import Variable
+import os
 
 class ToRGB(object):
     """
@@ -75,7 +76,7 @@ def data_load(path, subfolder, transform, batch_size, shuffle=False, drop_last=T
 
         n += 1
 
-    return torch.utils.data.DataLoader(dset, batch_size=batch_size, shuffle=shuffle, drop_last=drop_last)
+    return torch.utils.data.DataLoader(dset, batch_size=batch_size, shuffle=shuffle, drop_last=drop_last, num_workers=os.cpu_count())
 
 def print_network(net):
     num_params = 0
