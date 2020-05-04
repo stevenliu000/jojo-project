@@ -154,9 +154,9 @@ class Transformer(nn.Module):
 
         return y
     
-class Transformer_explode(nn.Module):
+class TransformerExplode(nn.Module):
     def __init__(self):
-        super(Transformer, self).__init__()
+        super(TransformerExplode, self).__init__()
         #
         self.refpad01_1 = nn.ReflectionPad2d(3)
         self.conv01_1 = nn.Conv2d(3, 64, 7)
