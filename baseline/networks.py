@@ -505,6 +505,7 @@ class InstanceNormalization(nn.Module):
 
 
 '''
+original code
 -------------------------------------------------------------------------------
 '''
 class resnet_block(nn.Module):
