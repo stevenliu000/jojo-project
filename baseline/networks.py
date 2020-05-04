@@ -1,6 +1,7 @@
 import torch, utils
 import torch.nn as nn
 import torch.nn.functional as F
+from conv2d_mtl import Conv2dMtl
 
 '''
 --------------------------------------------------------------------------------
@@ -8,113 +9,113 @@ code from pre-train-weight github
 https://github.com/Yijunmaverick/CartoonGAN-Test-Pytorch-Torch/blob/master/test.py
 '''
 class Transformer(nn.Module):
-    def __init__(self):
+    def __init__(self, conv=nn.Conv2d):
         super(Transformer, self).__init__()
         #
         self.refpad01_1 = nn.ReflectionPad2d(3)
-        self.conv01_1 = nn.Conv2d(3, 64, 7)
+        self.conv01_1 = conv(3, 64, 7)
         self.in01_1 = InstanceNormalization(64)
         # relu
-        self.conv02_1 = nn.Conv2d(64, 128, 3, 2, 1)
-        self.conv02_2 = nn.Conv2d(128, 128, 3, 1, 1)
+        self.conv02_1 = conv(64, 128, 3, 2, 1)
+        self.conv02_2 = conv(128, 128, 3, 1, 1)
         self.in02_1 = InstanceNormalization(128)
         # relu
-        self.conv03_1 = nn.Conv2d(128, 256, 3, 2, 1)
-        self.conv03_2 = nn.Conv2d(256, 256, 3, 1, 1)   
+        self.conv03_1 = conv(128, 256, 3, 2, 1)
+        self.conv03_2 = conv(256, 256, 3, 1, 1)   
         self.in03_1 = InstanceNormalization(256)    
         # relu
 
         ## res block 1
         self.refpad04_1 = nn.ReflectionPad2d(1)
-        self.conv04_1 = nn.Conv2d(256, 256, 3)
+        self.conv04_1 = conv(256, 256, 3)
         self.in04_1 = InstanceNormalization(256)
         # relu
         self.refpad04_2 = nn.ReflectionPad2d(1)
-        self.conv04_2 = nn.Conv2d(256, 256, 3)
+        self.conv04_2 = conv(256, 256, 3)
         self.in04_2 = InstanceNormalization(256)
         # + input
 
         ## res block 2
         self.refpad05_1 = nn.ReflectionPad2d(1)
-        self.conv05_1 = nn.Conv2d(256, 256, 3)
+        self.conv05_1 = conv(256, 256, 3)
         self.in05_1 = InstanceNormalization(256)
         # relu
         self.refpad05_2 = nn.ReflectionPad2d(1)
-        self.conv05_2 = nn.Conv2d(256, 256, 3)
+        self.conv05_2 = conv(256, 256, 3)
         self.in05_2 = InstanceNormalization(256)
         # + input
 
         ## res block 3
         self.refpad06_1 = nn.ReflectionPad2d(1)
-        self.conv06_1 = nn.Conv2d(256, 256, 3)
+        self.conv06_1 = conv(256, 256, 3)
         self.in06_1 = InstanceNormalization(256)
         # relu
         self.refpad06_2 = nn.ReflectionPad2d(1)
-        self.conv06_2 = nn.Conv2d(256, 256, 3)
+        self.conv06_2 = conv(256, 256, 3)
         self.in06_2 = InstanceNormalization(256)
         # + input
 
         ## res block 4
         self.refpad07_1 = nn.ReflectionPad2d(1)
-        self.conv07_1 = nn.Conv2d(256, 256, 3)
+        self.conv07_1 = conv(256, 256, 3)
         self.in07_1 = InstanceNormalization(256)
         # relu
         self.refpad07_2 = nn.ReflectionPad2d(1)
-        self.conv07_2 = nn.Conv2d(256, 256, 3)
+        self.conv07_2 = conv(256, 256, 3)
         self.in07_2 = InstanceNormalization(256)
         # + input
 
         ## res block 5
         self.refpad08_1 = nn.ReflectionPad2d(1)
-        self.conv08_1 = nn.Conv2d(256, 256, 3)
+        self.conv08_1 = conv(256, 256, 3)
         self.in08_1 = InstanceNormalization(256)
         # relu
         self.refpad08_2 = nn.ReflectionPad2d(1)
-        self.conv08_2 = nn.Conv2d(256, 256, 3)
+        self.conv08_2 = conv(256, 256, 3)
         self.in08_2 = InstanceNormalization(256)
         # + input
 
         ## res block 6
         self.refpad09_1 = nn.ReflectionPad2d(1)
-        self.conv09_1 = nn.Conv2d(256, 256, 3)
+        self.conv09_1 = conv(256, 256, 3)
         self.in09_1 = InstanceNormalization(256)
         # relu
         self.refpad09_2 = nn.ReflectionPad2d(1)
-        self.conv09_2 = nn.Conv2d(256, 256, 3)
+        self.conv09_2 = conv(256, 256, 3)
         self.in09_2 = InstanceNormalization(256)
         # + input
 
         ## res block 7
         self.refpad10_1 = nn.ReflectionPad2d(1)
-        self.conv10_1 = nn.Conv2d(256, 256, 3)
+        self.conv10_1 = conv(256, 256, 3)
         self.in10_1 = InstanceNormalization(256)
         # relu
         self.refpad10_2 = nn.ReflectionPad2d(1)
-        self.conv10_2 = nn.Conv2d(256, 256, 3)
+        self.conv10_2 = conv(256, 256, 3)
         self.in10_2 = InstanceNormalization(256)
         # + input
 
         ## res block 8
         self.refpad11_1 = nn.ReflectionPad2d(1)
-        self.conv11_1 = nn.Conv2d(256, 256, 3)
+        self.conv11_1 = conv(256, 256, 3)
         self.in11_1 = InstanceNormalization(256)
         # relu
         self.refpad11_2 = nn.ReflectionPad2d(1)
-        self.conv11_2 = nn.Conv2d(256, 256, 3)
+        self.conv11_2 = conv(256, 256, 3)
         self.in11_2 = InstanceNormalization(256)
         # + input
 
         ##------------------------------------##
         self.deconv01_1 = nn.ConvTranspose2d(256, 128, 3, 2, 1, 1)
-        self.deconv01_2 = nn.Conv2d(128, 128, 3, 1, 1)
+        self.deconv01_2 = conv(128, 128, 3, 1, 1)
         self.in12_1 = InstanceNormalization(128)
         # relu
         self.deconv02_1 = nn.ConvTranspose2d(128, 64, 3, 2, 1, 1)
-        self.deconv02_2 = nn.Conv2d(64, 64, 3, 1, 1)
+        self.deconv02_2 = conv(64, 64, 3, 1, 1)
         self.in13_1 = InstanceNormalization(64)
         # relu
         self.refpad12_1 = nn.ReflectionPad2d(3)
-        self.deconv03_1 = nn.Conv2d(64, 3, 7)
+        self.deconv03_1 = conv(64, 3, 7)
         # tanh
 
     def forward(self, x):
@@ -155,59 +156,59 @@ class Transformer(nn.Module):
         return y
     
 class TransformerEncoder(nn.Module):
-    def __init__(self):
+    def __init__(self, conv=nn.Conv2d):
         super(TransformerEncoder, self).__init__()
         #
         self.refpad01_1 = nn.ReflectionPad2d(3)
-        self.conv01_1 = nn.Conv2d(3, 64, 7)
+        self.conv01_1 = conv(3, 64, 7)
         self.in01_1 = InstanceNormalization(64)
         # relu
-        self.conv02_1 = nn.Conv2d(64, 128, 3, 2, 1)
-        self.conv02_2 = nn.Conv2d(128, 128, 3, 1, 1)
+        self.conv02_1 = conv(64, 128, 3, 2, 1)
+        self.conv02_2 = conv(128, 128, 3, 1, 1)
         self.in02_1 = InstanceNormalization(128)
         # relu
-        self.conv03_1 = nn.Conv2d(128, 256, 3, 2, 1)
-        self.conv03_2 = nn.Conv2d(256, 256, 3, 1, 1)   
+        self.conv03_1 = conv(128, 256, 3, 2, 1)
+        self.conv03_2 = conv(256, 256, 3, 1, 1)   
         self.in03_1 = InstanceNormalization(256)    
         # relu
 
         ## res block 1
         self.refpad04_1 = nn.ReflectionPad2d(1)
-        self.conv04_1 = nn.Conv2d(256, 256, 3)
+        self.conv04_1 = conv(256, 256, 3)
         self.in04_1 = InstanceNormalization(256)
         # relu
         self.refpad04_2 = nn.ReflectionPad2d(1)
-        self.conv04_2 = nn.Conv2d(256, 256, 3)
+        self.conv04_2 = conv(256, 256, 3)
         self.in04_2 = InstanceNormalization(256)
         # + input
 
         ## res block 2
         self.refpad05_1 = nn.ReflectionPad2d(1)
-        self.conv05_1 = nn.Conv2d(256, 256, 3)
+        self.conv05_1 = conv(256, 256, 3)
         self.in05_1 = InstanceNormalization(256)
         # relu
         self.refpad05_2 = nn.ReflectionPad2d(1)
-        self.conv05_2 = nn.Conv2d(256, 256, 3)
+        self.conv05_2 = conv(256, 256, 3)
         self.in05_2 = InstanceNormalization(256)
         # + input
 
         ## res block 3
         self.refpad06_1 = nn.ReflectionPad2d(1)
-        self.conv06_1 = nn.Conv2d(256, 256, 3)
+        self.conv06_1 = conv(256, 256, 3)
         self.in06_1 = InstanceNormalization(256)
         # relu
         self.refpad06_2 = nn.ReflectionPad2d(1)
-        self.conv06_2 = nn.Conv2d(256, 256, 3)
+        self.conv06_2 = conv(256, 256, 3)
         self.in06_2 = InstanceNormalization(256)
         # + input
 
         ## res block 4
         self.refpad07_1 = nn.ReflectionPad2d(1)
-        self.conv07_1 = nn.Conv2d(256, 256, 3)
+        self.conv07_1 = conv(256, 256, 3)
         self.in07_1 = InstanceNormalization(256)
         # relu
         self.refpad07_2 = nn.ReflectionPad2d(1)
-        self.conv07_2 = nn.Conv2d(256, 256, 3)
+        self.conv07_2 = conv(256, 256, 3)
         self.in07_2 = InstanceNormalization(256)
         # + input
 
@@ -238,59 +239,59 @@ class TransformerEncoder(nn.Module):
         return t08, net
 
 class TransformerDecoder(nn.Module):
-    def __init__(self):
+    def __init__(self, conv=nn.Conv2d):
         super(TransformerDecoder, self).__init__()
         ## res block 5
         self.refpad08_1 = nn.ReflectionPad2d(1)
-        self.conv08_1 = nn.Conv2d(256, 256, 3)
+        self.conv08_1 = conv(256, 256, 3)
         self.in08_1 = InstanceNormalization(256)
         # relu
         self.refpad08_2 = nn.ReflectionPad2d(1)
-        self.conv08_2 = nn.Conv2d(256, 256, 3)
+        self.conv08_2 = conv(256, 256, 3)
         self.in08_2 = InstanceNormalization(256)
         # + input
 
         ## res block 6
         self.refpad09_1 = nn.ReflectionPad2d(1)
-        self.conv09_1 = nn.Conv2d(256, 256, 3)
+        self.conv09_1 = conv(256, 256, 3)
         self.in09_1 = InstanceNormalization(256)
         # relu
         self.refpad09_2 = nn.ReflectionPad2d(1)
-        self.conv09_2 = nn.Conv2d(256, 256, 3)
+        self.conv09_2 = conv(256, 256, 3)
         self.in09_2 = InstanceNormalization(256)
         # + input
 
         ## res block 7
         self.refpad10_1 = nn.ReflectionPad2d(1)
-        self.conv10_1 = nn.Conv2d(256, 256, 3)
+        self.conv10_1 = conv(256, 256, 3)
         self.in10_1 = InstanceNormalization(256)
         # relu
         self.refpad10_2 = nn.ReflectionPad2d(1)
-        self.conv10_2 = nn.Conv2d(256, 256, 3)
+        self.conv10_2 = conv(256, 256, 3)
         self.in10_2 = InstanceNormalization(256)
         # + input
 
         ## res block 8
         self.refpad11_1 = nn.ReflectionPad2d(1)
-        self.conv11_1 = nn.Conv2d(256, 256, 3)
+        self.conv11_1 = conv(256, 256, 3)
         self.in11_1 = InstanceNormalization(256)
         # relu
         self.refpad11_2 = nn.ReflectionPad2d(1)
-        self.conv11_2 = nn.Conv2d(256, 256, 3)
+        self.conv11_2 = conv(256, 256, 3)
         self.in11_2 = InstanceNormalization(256)
         # + input
 
         ##------------------------------------##
         self.deconv01_1 = nn.ConvTranspose2d(256, 128, 3, 2, 1, 1)
-        self.deconv01_2 = nn.Conv2d(128, 128, 3, 1, 1)
+        self.deconv01_2 = conv(128, 128, 3, 1, 1)
         self.in12_1 = InstanceNormalization(128)
         # relu
         self.deconv02_1 = nn.ConvTranspose2d(128, 64, 3, 2, 1, 1)
-        self.deconv02_2 = nn.Conv2d(64, 64, 3, 1, 1)
+        self.deconv02_2 = conv(64, 64, 3, 1, 1)
         self.in13_1 = InstanceNormalization(64)
         # relu
         self.refpad12_1 = nn.ReflectionPad2d(3)
-        self.deconv03_1 = nn.Conv2d(64, 3, 7)
+        self.deconv03_1 = conv(64, 3, 7)
         # tanh
 
     def forward(self, t08):
@@ -319,113 +320,113 @@ class TransformerDecoder(nn.Module):
         return y, net
 
 class TransformerExplode(nn.Module):
-    def __init__(self):
+    def __init__(self, conv=nn.Conv2d):
         super(TransformerExplode, self).__init__()
         #
         self.refpad01_1 = nn.ReflectionPad2d(3)
-        self.conv01_1 = nn.Conv2d(3, 64, 7)
+        self.conv01_1 = conv(3, 64, 7)
         self.in01_1 = InstanceNormalization(64)
         # relu
-        self.conv02_1 = nn.Conv2d(64, 128, 3, 2, 1)
-        self.conv02_2 = nn.Conv2d(128, 128, 3, 1, 1)
+        self.conv02_1 = conv(64, 128, 3, 2, 1)
+        self.conv02_2 = conv(128, 128, 3, 1, 1)
         self.in02_1 = InstanceNormalization(128)
         # relu
-        self.conv03_1 = nn.Conv2d(128, 256, 3, 2, 1)
-        self.conv03_2 = nn.Conv2d(256, 256, 3, 1, 1)   
+        self.conv03_1 = conv(128, 256, 3, 2, 1)
+        self.conv03_2 = conv(256, 256, 3, 1, 1)   
         self.in03_1 = InstanceNormalization(256)    
         # relu
 
         ## res block 1
         self.refpad04_1 = nn.ReflectionPad2d(1)
-        self.conv04_1 = nn.Conv2d(256, 256, 3)
+        self.conv04_1 = conv(256, 256, 3)
         self.in04_1 = InstanceNormalization(256)
         # relu
         self.refpad04_2 = nn.ReflectionPad2d(1)
-        self.conv04_2 = nn.Conv2d(256, 256, 3)
+        self.conv04_2 = conv(256, 256, 3)
         self.in04_2 = InstanceNormalization(256)
         # + input
 
         ## res block 2
         self.refpad05_1 = nn.ReflectionPad2d(1)
-        self.conv05_1 = nn.Conv2d(256, 256, 3)
+        self.conv05_1 = conv(256, 256, 3)
         self.in05_1 = InstanceNormalization(256)
         # relu
         self.refpad05_2 = nn.ReflectionPad2d(1)
-        self.conv05_2 = nn.Conv2d(256, 256, 3)
+        self.conv05_2 = conv(256, 256, 3)
         self.in05_2 = InstanceNormalization(256)
         # + input
 
         ## res block 3
         self.refpad06_1 = nn.ReflectionPad2d(1)
-        self.conv06_1 = nn.Conv2d(256, 256, 3)
+        self.conv06_1 = conv(256, 256, 3)
         self.in06_1 = InstanceNormalization(256)
         # relu
         self.refpad06_2 = nn.ReflectionPad2d(1)
-        self.conv06_2 = nn.Conv2d(256, 256, 3)
+        self.conv06_2 = conv(256, 256, 3)
         self.in06_2 = InstanceNormalization(256)
         # + input
 
         ## res block 4
         self.refpad07_1 = nn.ReflectionPad2d(1)
-        self.conv07_1 = nn.Conv2d(256, 256, 3)
+        self.conv07_1 = conv(256, 256, 3)
         self.in07_1 = InstanceNormalization(256)
         # relu
         self.refpad07_2 = nn.ReflectionPad2d(1)
-        self.conv07_2 = nn.Conv2d(256, 256, 3)
+        self.conv07_2 = conv(256, 256, 3)
         self.in07_2 = InstanceNormalization(256)
         # + input
 
         ## res block 5
         self.refpad08_1 = nn.ReflectionPad2d(1)
-        self.conv08_1 = nn.Conv2d(256, 256, 3)
+        self.conv08_1 = conv(256, 256, 3)
         self.in08_1 = InstanceNormalization(256)
         # relu
         self.refpad08_2 = nn.ReflectionPad2d(1)
-        self.conv08_2 = nn.Conv2d(256, 256, 3)
+        self.conv08_2 = conv(256, 256, 3)
         self.in08_2 = InstanceNormalization(256)
         # + input
 
         ## res block 6
         self.refpad09_1 = nn.ReflectionPad2d(1)
-        self.conv09_1 = nn.Conv2d(256, 256, 3)
+        self.conv09_1 = conv(256, 256, 3)
         self.in09_1 = InstanceNormalization(256)
         # relu
         self.refpad09_2 = nn.ReflectionPad2d(1)
-        self.conv09_2 = nn.Conv2d(256, 256, 3)
+        self.conv09_2 = conv(256, 256, 3)
         self.in09_2 = InstanceNormalization(256)
         # + input
 
         ## res block 7
         self.refpad10_1 = nn.ReflectionPad2d(1)
-        self.conv10_1 = nn.Conv2d(256, 256, 3)
+        self.conv10_1 = conv(256, 256, 3)
         self.in10_1 = InstanceNormalization(256)
         # relu
         self.refpad10_2 = nn.ReflectionPad2d(1)
-        self.conv10_2 = nn.Conv2d(256, 256, 3)
+        self.conv10_2 = conv(256, 256, 3)
         self.in10_2 = InstanceNormalization(256)
         # + input
 
         ## res block 8
         self.refpad11_1 = nn.ReflectionPad2d(1)
-        self.conv11_1 = nn.Conv2d(256, 256, 3)
+        self.conv11_1 = conv(256, 256, 3)
         self.in11_1 = InstanceNormalization(256)
         # relu
         self.refpad11_2 = nn.ReflectionPad2d(1)
-        self.conv11_2 = nn.Conv2d(256, 256, 3)
+        self.conv11_2 = conv(256, 256, 3)
         self.in11_2 = InstanceNormalization(256)
         # + input
 
         ##------------------------------------##
         self.deconv01_1 = nn.ConvTranspose2d(256, 128, 3, 2, 1, 1)
-        self.deconv01_2 = nn.Conv2d(128, 128, 3, 1, 1)
+        self.deconv01_2 = conv(128, 128, 3, 1, 1)
         self.in12_1 = InstanceNormalization(128)
         # relu
         self.deconv02_1 = nn.ConvTranspose2d(128, 64, 3, 2, 1, 1)
-        self.deconv02_2 = nn.Conv2d(64, 64, 3, 1, 1)
+        self.deconv02_2 = conv(64, 64, 3, 1, 1)
         self.in13_1 = InstanceNormalization(64)
         # relu
         self.refpad12_1 = nn.ReflectionPad2d(3)
-        self.deconv03_1 = nn.Conv2d(64, 3, 7)
+        self.deconv03_1 = conv(64, 3, 7)
         # tanh
 
     def forward(self, x):
