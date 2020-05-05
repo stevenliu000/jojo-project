@@ -39,7 +39,7 @@ parser.add_argument('--latest_discriminator_model', required=False, default='', 
 parser.add_argument('--G_pre_trained_weight', required=True, default='', help='pre_trained_weight for G')
 parser.add_argument('--save_period', type=int, required=False, default=10, help='of how many epochs it saves model')
 args = parser.parse_args()
-args.name = './mtl_all/'+args.name
+args.name = args.name
 
 print('------------ Options -------------')
 for k, v in sorted(vars(args).items()):
