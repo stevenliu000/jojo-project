@@ -37,7 +37,7 @@ parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for Adam o
 parser.add_argument('--latest_generator_model', required=False, default='', help='the latest trained model path')
 parser.add_argument('--latest_discriminator_model', required=False, default='', help='the latest trained model path')
 parser.add_argument('--G_pre_trained_weight', required=True, default='', help='pre_trained_weight for G')
-parser.add_argument('--save_period', type=int, required=False, default=2, help='of how many epochs it saves model')
+parser.add_argument('--save_period', type=int, required=False, default=10, help='of how many epochs it saves model')
 args = parser.parse_args()
 
 print('------------ Options -------------')
@@ -248,8 +248,8 @@ for epoch in range(args.train_epoch):
                 if n == 4:
                     break
 
-            torch.save(G_decoder.state_dict(), os.path.join(args.name + '_results', 'generator_decoder_mtl.pkl'))
-            torch.save(D.state_dict(), os.path.join(args.name + '_results', 'discriminator_latest.pkl'))
+            torch.save(G_decoder.state_dict(), os.path.join(args.name + '_results', 'generator_decoder_mtl_%i.pkl'%epoch))
+            torch.save(D.state_dict(), os.path.join(args.name + '_results', 'discriminator_%i.pkl'%epoch))
 
 total_time = time.time() - start_time
 train_hist['total_time'].append(total_time)
