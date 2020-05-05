@@ -41,17 +41,17 @@ args = parser.parse_args()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 if torch.backends.cudnn.enabled:
-    torch.backends.cudnn.benchmark = True
+	torch.backends.cudnn.benchmark = True
 
 G_encoder = networks.TransformerEncoder()
 G_decoder = networks.TransformerDecoder(conv=Conv2dMtl)
 if torch.cuda.is_available():
-		G_decoder.load_state_dict(torch.load(args.G_decoder_weight))
-		G_encoder.load_state_dict(torch.load(args.G_encoder_weight), strict=False)
+	G_decoder.load_state_dict(torch.load(args.G_decoder_weight))
+	G_encoder.load_state_dict(torch.load(args.G_encoder_weight), strict=False)
 else:
-    # cpu mode
-    G_encoder.load_state_dict(torch.load(args.G_encoder_weight, map_location=lambda storage, loc: storage), strict=False)
-    G_decoder.load_state_dict(torch.load(args.G_decoder_weight, map_location=lambda storage, loc: storage))
+	# cpu mode
+	G_encoder.load_state_dict(torch.load(args.G_encoder_weight, map_location=lambda storage, loc: storage), strict=False)
+	G_decoder.load_state_dict(torch.load(args.G_decoder_weight, map_location=lambda storage, loc: storage))
 G_encoder.to(device)
 G_decoder.to(device)
 G_encoder.eval()
@@ -69,17 +69,17 @@ src_transform = transforms.Compose([
 image_src = utils.data_load(os.path.join(args.image_dir), 'test', src_transform, 1, shuffle=True, drop_last=True)
 
 with torch.no_grad():
-    for n, (x, _) in enumerate(image_src):
-        x = x.to(device)
-        G_recon = G_encoder(x)[0]
-				G_recon = G_decoder(x)[0]
-        result = G_recon[0]
-        path = os.path.join(args.output_image_dir, str(n + 1) + '.png')
-				# BGR -> RGB
-        result = result[[2, 1, 0], :, :]
-				# deprocess, (0, 1)
-        result = result.data.cpu().float() * 0.5 + 0.5
-        vutils.save_image(result, path)
+	for n, (x, _) in enumerate(image_src):
+		x = x.to(device)
+		G_recon = G_encoder(x)[0]
+		G_recon = G_decoder(G_recon)[0]
+		result = G_recon[0]
+		path = os.path.join(args.output_image_dir, str(n + 1) + '.png')
+		# BGR -> RGB
+		result = result[[2, 1, 0], :, :]
+		# deprocess, (0, 1)
+		result = result.data.cpu().float() * 0.5 + 0.5
+		vutils.save_image(result, path)
 
 '''
 valid_ext = ['.jpg', '.png']
