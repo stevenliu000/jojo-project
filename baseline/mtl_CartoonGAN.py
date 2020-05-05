@@ -175,7 +175,7 @@ for epoch in range(args.train_epoch):
         D_real_loss = BCE_loss(D_real, real)
 
         with torch.no_grad():
-          G_ = G_encoder(x)[0].detech()
+          G_ = G_encoder(x)[0].detach()
         G_ = G_decoder(G_)[0]
         D_fake = D(G_)
         D_fake_loss = BCE_loss(D_fake, fake)
@@ -194,7 +194,7 @@ for epoch in range(args.train_epoch):
         G_optimizer.zero_grad()
 
         with torch.no_grad():
-          G_ = G_encoder(x)[0].detech()
+          G_ = G_encoder(x)[0].detach()
         G_ = G_decoder(G_)[0]
         D_fake = D(G_)
         D_fake_loss = BCE_loss(D_fake, real)
