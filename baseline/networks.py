@@ -479,7 +479,7 @@ class TransformerExplode(nn.Module):
 
 class TransformerDecoder05(nn.Module):
     def __init__(self, conv=nn.Conv2d):
-        super(TransformerExplode, self).__init__()
+        super(TransformerDecoder05, self).__init__()
         #
         ## res block 2
         self.refpad05_1 = nn.ReflectionPad2d(1)
@@ -603,7 +603,7 @@ class TransformerDecoder05(nn.Module):
 
 class TransformerEncoder05(nn.Module):
     def __init__(self, conv=nn.Conv2d):
-        super(TransformerExplode, self).__init__()
+        super(TransformerEncoder05, self).__init__()
         #
         self.refpad01_1 = nn.ReflectionPad2d(3)
         self.conv01_1 = conv(3, 64, 7)
