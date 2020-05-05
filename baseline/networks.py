@@ -564,7 +564,7 @@ class TransformerDecoder05(nn.Module):
         self.deconv03_1 = conv(64, 3, 7)
         # tanh
 
-    def forward(self, x):
+    def forward(self, t05):
         net = {}
         y = F.relu(self.in05_1(self.conv05_1(self.refpad05_1(t05))))
         t06 = self.in05_2(self.conv05_2(self.refpad05_2(y))) + t05
