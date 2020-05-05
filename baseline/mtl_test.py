@@ -46,11 +46,11 @@ if torch.backends.cudnn.enabled:
 G_encoder = networks.TransformerEncoder()
 G_decoder = networks.TransformerDecoder(conv=Conv2dMtl)
 if torch.cuda.is_available():
-    G_encoder.load_state_dict(torch.load(args.G_encoder_weight), strict=False)
 		G_decoder.load_state_dict(torch.load(args.G_decoder_weight))
+		G_encoder.load_state_dict(torch.load(args.G_encoder_weight), strict=False)
 else:
     # cpu mode
-    G_encoder.load_state_dict(torch.load(args.G_encoder_weight, map_location=lambda storage, loc: storage))
+    G_encoder.load_state_dict(torch.load(args.G_encoder_weight, map_location=lambda storage, loc: storage), strict=False)
     G_decoder.load_state_dict(torch.load(args.G_decoder_weight, map_location=lambda storage, loc: storage))
 G_encoder.to(device)
 G_decoder.to(device)
